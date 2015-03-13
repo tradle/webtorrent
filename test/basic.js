@@ -2,6 +2,9 @@ var fs = require('fs')
 var parseTorrent = require('parse-torrent')
 var test = require('tape')
 var WebTorrent = require('../')
+var DHT = require('bittorrent-dht/client')
+var parallel = require('run-parallel')
+var bufferEqual = require('buffer-equal')
 
 var leaves = fs.readFileSync(__dirname + '/torrents/leaves.torrent')
 var leavesTorrent = parseTorrent(leaves)
@@ -116,3 +119,61 @@ test('after client.destroy(), no "torrent" or "ready" events emitted', function 
     t.pass('client destroyed')
   })
 })
+
+test('download via DHT', function (t) {
+  t.plan(2)
+
+  var data = new Buffer('blah blah')
+  var dhts = []
+
+  // need 3 because nodes don't advertise themselves as peers
+  for (var i = 0; i < 3; i++) {
+    dhts.push(new DHT({ bootstrap: false }))
+  }
+
+  parallel(dhts.map(function (dht) {
+    return function (cb) {
+      dht.listen(function (port) {
+        cb(null, port)
+      })
+    }
+  }), function () {
+    for (var i = 0; i < dhts.length; i++) {
+      for (var j = 0; j < dhts.length; j++) {
+        if (i !== j) dhts[i].addNode('127.0.0.1:' + getDHTPort(dhts[j]), dhts[j].nodeId)
+      }
+    }
+
+    var client1 = new WebTorrent({ dht: dhts[0], tracker: false })
+    var client2 = new WebTorrent({ dht: dhts[1], tracker: false })
+
+    client1.seed(data, { name: 'blah' }, function (torrent1) {
+      client2.download(torrent1.infoHash, function (torrent2) {
+        t.equal(torrent2.infoHash, torrent1.infoHash)
+        torrent2.on('done', function () {
+          t.ok(bufferEqual(getFileData(torrent2), data))
+          dhts.forEach(function (d) {
+            d.destroy()
+          })
+
+          client1.destroy()
+          client2.destroy()
+        })
+      })
+    })
+  })
+})
+
+function getFileData (torrent) {
+  var pieces = torrent.files[0].pieces
+
+  return Buffer.concat(pieces.map(
+    function (piece) {
+      return piece.buffer
+    }
+  ))
+}
+
+function getDHTPort (dht) {
+  return dht.address().port
+}

@@ -10,6 +10,15 @@
   "bin": {
     "webtorrent": "./bin/cmd.js"
   },
+  "chromeapp": {
+    "./lib/fs-storage": false,
+    "./package.json": false,
+    "./server": false,
+    "addr-to-ip-port": false,
+    "load-ip-set": false,
+    "simple-get": false,
+    "ut_pex": false
+  },
   "browser": {
     "./lib/fs-storage": false,
     "./package.json": false,
@@ -32,7 +41,7 @@
   "dependencies": {
     "addr-to-ip-port": "^1.0.1",
     "bitfield": "^1.0.2",
-    "bittorrent-dht": "^3.0.0",
+    "bittorrent-dht": "git://github.com/mvayngrib/bittorrent-dht.git",
     "bittorrent-swarm": "^1.0.0",
     "block-stream": "0.0.7",
     "browserify-versionify": "^1.0.2",
@@ -76,6 +85,7 @@
     "bittorrent-tracker": "^3.1.2",
     "brfs": "^1.2.0",
     "browserify": "^9.0.3",
+    "buffer-equal": "0.0.1",
     "run-auto": "^1.0.0",
     "standard": "^2.0.0",
     "tape": "^3.0.3",
