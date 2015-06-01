@@ -12,8 +12,8 @@
   },
   "chromeapp": {
     "./lib/fs-storage": false,
+    "./lib/server": false,
     "./package.json": false,
-    "./server": false,
     "addr-to-ip-port": false,
     "load-ip-set": false,
     "simple-get": false,
@@ -21,7 +21,7 @@
   },
   "browser": {
     "./lib/fs-storage": false,
-    "./server": false,
+    "./lib/server": false,
     "addr-to-ip-port": false,
     "bittorrent-dht/client": false,
     "bittorrent-swarm": "webtorrent-swarm",
