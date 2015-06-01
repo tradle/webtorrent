@@ -21,7 +21,6 @@
   },
   "browser": {
     "./lib/fs-storage": false,
-    "./package.json": false,
     "./server": false,
     "addr-to-ip-port": false,
     "bittorrent-dht/client": false,
