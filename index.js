@@ -77,6 +77,8 @@ function WebTorrent (opts) {
     // use a single DHT instance for all torrents, so the routing table can be reused
     if (opts.dht && opts.dht.listen) {
       self.dht = opts.dht
+      // don't kill dht if it was passed in
+      self._dontKillDHT = true
     } else {
       self.dht = new DHT(extend({ nodeId: self.nodeId }, opts.dht))
     }
@@ -264,7 +266,7 @@ WebTorrent.prototype.destroy = function (cb) {
     }
   })
 
-  if (self.dht) tasks.push(function (cb) {
+  if (self.dht && !self._dontKillDHT) tasks.push(function (cb) {
     self.dht.destroy(cb)
   })
 

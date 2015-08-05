@@ -164,6 +164,25 @@ test('download via DHT', function (t) {
   })
 })
 
+test('don\'t kill passed in DHT on destroy', function (t) {
+  t.plan(1)
+
+  var dht = new DHT({ bootstrap: false })
+  var destroy = dht.destroy
+  var okToDie
+  dht.destroy = function () {
+    t.equal(okToDie, true)
+    dht.destroy = destroy.bind(dht)
+    dht.destroy()
+  }
+
+  var client = new WebTorrent({ dht: dht, tracker: false })
+  client.destroy(function () {
+    okToDie = true
+    dht.destroy()
+  })
+})
+
 function getFileData (torrent) {
   var pieces = torrent.files[0].pieces
 
